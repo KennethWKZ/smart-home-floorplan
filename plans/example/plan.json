@@ -1,0 +1,5 @@
+{
+  "code": "EXAMPLE",
+  "label": "Example apartment",
+  "notes": "Anonymised worked example: the drawings PDF is not included, so build/geometry.json and build/rcp.json are the starting point. Sheet 1 furniture layout, sheet 2 M&E (walls and devices), sheet 3 RCP (switching). 1:50 on A3."
+}

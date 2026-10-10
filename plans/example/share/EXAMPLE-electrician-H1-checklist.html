@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Example LED Switch Wiring</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* One working sheet for the electrician: English line first, 华文 line under it. Same palette as the network plan. */
+:root {
+  --table: #d3d9e0; --sheet: #ffffff; --sheet-edge: #b9c1ca;
+  --ink: #14181d; --ink-2: #3c434c; --ink-3: #5d6670; --rule: #d6dbe1; --hover: #eef2f6;
+  --led: #d6338a; --led-ink: #b0216f; --warn: #b88200; --warn-ink: #855e00; --wf-ink: #0a7752;
+  --shadow: 0 1px 1px rgb(20 24 29 / .07);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --table: #0c0f12; --sheet: #161a1f; --sheet-edge: #2a3038;
+    --ink: #e8ecf0; --ink-2: #c3cad2; --ink-3: #8f99a4; --rule: #262c33; --hover: #1f252c;
+    --led: #ff6eb4; --led-ink: #ff8cc4; --warn: #e3b341; --warn-ink: #edc565; --wf-ink: #5fe0ad;
+    --shadow: 0 1px 1px rgb(0 0 0 / .45);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --table: #0c0f12; --sheet: #161a1f; --sheet-edge: #2a3038;
+  --ink: #e8ecf0; --ink-2: #c3cad2; --ink-3: #8f99a4; --rule: #262c33; --hover: #1f252c;
+  --led: #ff6eb4; --led-ink: #ff8cc4; --warn: #e3b341; --warn-ink: #edc565; --wf-ink: #5fe0ad;
+  --shadow: 0 1px 1px rgb(0 0 0 / .45);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--table); color: var(--ink);
+  font: 400 15px/1.5 Jost, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  padding-inline: 16px; padding-block: 24px 40px;
+}
+.sheet {
+  max-width: 860px; margin: 0 auto; background: var(--sheet); border: 1px solid var(--sheet-edge);
+  border-radius: 6px; box-shadow: var(--shadow); padding: 28px clamp(16px, 4vw, 36px) 32px;
+  display: grid; gap: 22px;
+}
+.zh { display: block; color: var(--ink-2); font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", Jost, sans-serif; }
+header { display: grid; gap: 6px; border-bottom: 2px solid var(--ink); padding-bottom: 14px; }
+.ref { font-size: .82rem; color: var(--ink-3); letter-spacing: .04em; text-transform: uppercase; }
+h1 { margin: 0; font-size: 1.6rem; font-weight: 600; line-height: 1.2; text-wrap: balance; }
+h1 .zh { font-size: 1.15rem; font-weight: 500; margin-top: 2px; }
+h2 { margin: 0 0 8px; font-size: 1.08rem; font-weight: 600; }
+h2 .zh { font-size: .95rem; font-weight: 500; }
+.rule { border-left: 4px solid var(--led); background: var(--hover); padding: 12px 16px; border-radius: 0 4px 4px 0; display: grid; gap: 8px; }
+.rule p { margin: 0; }
+.rule b { color: var(--led-ink); }
+.tbl { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .92rem; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; vertical-align: top; padding: 9px 10px; border-bottom: 1px solid var(--rule); }
+th { font-size: .78rem; font-weight: 600; color: var(--ink-3); letter-spacing: .03em; border-bottom: 1.5px solid var(--ink-2); }
+td.c { font-weight: 600; white-space: nowrap; color: var(--led-ink); }
+td .zh { font-size: .88rem; }
+tr.also td { color: var(--ink-2); }
+tr.also td.c { color: var(--ink-2); }
+.flag { color: var(--warn-ink); font-weight: 600; }
+ol.check { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; counter-reset: c; }
+ol.check li { counter-increment: c; }
+ol.check label { display: grid; grid-template-columns: 22px 1.6em 1fr; gap: 4px 6px; align-items: start; padding: 8px 6px; border-radius: 4px; cursor: pointer; }
+ol.check label:hover { background: var(--hover); }
+ol.check input { margin: 4px 0 0; width: 18px; height: 18px; accent-color: var(--wf-ink); }
+ol.check label::before { content: counter(c) "."; grid-column: 2; grid-row: 1; font-weight: 600; color: var(--ink-3); }
+ol.check input { grid-column: 1; grid-row: 1; }
+ol.check .txt { grid-column: 3; grid-row: 1; min-width: 0; }
+ol.check input:checked ~ .txt { color: var(--ink-3); text-decoration: line-through; text-decoration-color: var(--rule); }
+.why { font-size: .88rem; color: var(--ink-3); border-top: 1px solid var(--rule); padding-top: 14px; display: grid; gap: 6px; }
+.why p { margin: 0; }
+@media (max-width: 640px) {
+  table, thead, tbody, tr, th, td { display: block; }
+  thead { display: none; }
+  tr { border-bottom: 1px solid var(--rule); padding: 8px 0; }
+  td { border: 0; padding: 3px 0; }
+  td[data-k]::before { content: attr(data-k); display: block; font-size: .74rem; color: var(--ink-3); font-weight: 600; letter-spacing: .03em; }
+}
+</style>
+</head>
+<body>
+<main class="sheet">
+  <header>
+    <span class="ref">Example apartment · for the electrician / 电工师傅</span>
+    <h1>LED strip supplies: wire to permanent power, not through the switch
+      <span class="zh">LED strip 火牛：接常电，不要经过 switch</span></h1>
+  </header>
+
+  <section class="rule">
+    <p><b>The rule.</b> Each LED strip's 24 V supply (火牛) is fed from permanent live and neutral, never from an H1 rocker's load terminal. That rocker is set to wireless (decoupled) mode in the Aqara app and switches the strip by sending a command to its driver.
+      <span class="zh"><b>规则：</b>每条 LED strip 的 24V 火牛都接常电（live L + neutral N，不经过 switch），不可以接在 H1 switch 按键的 output（L1/L2/L3）。那个按键会在 Aqara App 里设成 wireless mode（decoupled），用 signal 叫 driver 开关灯条。</span></p>
+    <p>Why: each driver is also a Zigbee router. If its power is cut, nearby smart devices drop off the network.
+      <span class="zh">原因：每个 driver 也是 Zigbee router，一断电，附近的 smart 设备会 offline。</span></p>
+  </section>
+
+  <section>
+    <h2>Which rockers / 哪几个按键</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Circuit<span class="zh">线路</span></th><th>LED strip<span class="zh">灯条</span></th><th>H1 switch<span class="zh">开关位置</span></th><th>Supply (火牛)<span class="zh">火牛</span></th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="c" data-k="Circuit / 线路">L08</td>
+            <td data-k="LED strip / 灯条">Living TV wall, 8.7 m 3-tone COB<span class="zh">客厅电视墙 COB LED strip 8.7 m</span></td>
+            <td data-k="H1 switch / 开关位置">Living 3G, under the MagicPad: the L08 rocker<span class="zh">客厅 3 gang switch（MagicPad 下面）的 L08 按键</span></td>
+            <td data-k="Supply / 火牛">200 W (load about 122 W), behind the TV unit<span class="zh">200 W（负载约 122 W），放电视柜后面</span></td>
+          </tr>
+          <tr>
+            <td class="c" data-k="Circuit / 线路">L24</td>
+            <td data-k="LED strip / 灯条">Gaming room ceiling rectangle, 9.0 m 16-tone<span class="zh">游戏房 ceiling LED strip 9.0 m（16 色）</span></td>
+            <td data-k="H1 switch / 开关位置">Gaming door 4G (2 × double rocker): the L24 rocker<span class="zh">游戏房门口 4 gang（2 个 2 gang H1）的 L24 按键</span></td>
+            <td data-k="Supply / 火牛"><span class="flag">250 W</span> (load about 173 W; 200 W is too tight), ceiling void at the strip corner<span class="zh"><span class="flag">250 W</span>（负载约 173 W，200 W 太紧），放 ceiling 灯带角落</span></td>
+          </tr>
+          <tr>
+            <td class="c" data-k="Circuit / 线路">L30</td>
+            <td data-k="LED strip / 灯条">Master headboard, 4.3 m 3-tone COB<span class="zh">主人房床头 COB LED strip 4.3 m</span></td>
+            <td data-k="H1 switch / 开关位置">Master 3G at both bedsides: the L30 rocker on each. <span class="flag">2-way on the drawing</span><span class="zh">主人房两边床头的 3 gang switch，各自的 L30 按键。<span class="flag">图纸上是 2-way</span></span></td>
+            <td data-k="Supply / 火牛">200 W (load about 60 W), at the door-side bedside table<span class="zh">200 W（负载约 60 W），放门边床头柜</span></td>
+          </tr>
+          <tr>
+            <td class="c" data-k="Circuit / 线路">L34</td>
+            <td data-k="LED strip / 灯条">Master dresser mirror, 6.3 m 3-tone COB<span class="zh">主人房化妆镜 COB LED strip 6.3 m</span></td>
+            <td data-k="H1 switch / 开关位置">Master dresser 2G: the L34 rocker<span class="zh">化妆台 2 gang switch 的 L34 按键</span></td>
+            <td data-k="Supply / 火牛">200 W (load about 88 W), beside the mirror, not behind it<span class="zh">200 W（负载约 88 W），装在镜子旁边，不要在镜子后面</span></td>
+          </tr>
+          <tr class="also">
+            <td class="c" data-k="Circuit / 线路">L19</td>
+            <td data-k="LED strip / 灯条">Also: corridor, 5 × Aqara T2 smart spotlights<span class="zh">另外：走廊 5 个 Aqara T2 smart spotlight</span></td>
+            <td data-k="H1 switch / 开关位置">Corridor 2G: the L19 rocker<span class="zh">走廊 2 gang switch 的 L19 按键</span></td>
+            <td data-k="Supply / 火牛">Same rule: the spots need permanent power<span class="zh">同样规则：spotlight 要接常电</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Checklist / 检查清单</h2>
+    <ol class="check">
+      <li><label><input type="checkbox"><span class="txt">Feed all four LED supplies (and the corridor spots) from permanent L + N, not through any switch.<span class="zh">4 个 LED 火牛（还有走廊 spotlight）都接常电 L + N，不经过任何 switch。</span></span></label></li>
+      <li><label><input type="checkbox"><span class="txt">On the L08, L19, L24, L30 and L34 rockers, leave the load terminal empty and insulated. The other rockers on the same H1 are wired to their lights as normal.<span class="zh">L08、L19、L24、L30、L34 这几个按键的 output 留空，包好 insulation。同一个 switch 的其他按键照常接灯。</span></span></label></li>
+      <li><label><input type="checkbox"><span class="txt"><span class="flag">L27 and L30 are 2-way on the drawing.</span> Both bedsides are H1 3G now, and an H1 has no strapper terminals: run no 2-way wires for L27 or L30. Wire L27 only at the Master door H1; leave the L27 and L30 outputs on both bedside H1s empty. L29 (door side) and L31 (window side) are wired normally. The owner links the bedside rockers in the app.<span class="zh"><span class="flag">L27 和 L30 图纸是 2-way。</span>两边床头现在都是 H1 3 gang，H1 没有 strapper 接头：L27、L30 不要拉 2-way 线。L27 只接在主人房门口的 H1；两边床头 H1 的 L27、L30 output 都留空。L29（门边）和 L31（窗边）照常接灯。床头按键由屋主在 App 里连接。</span></span></label></li>
+      <li><label><input type="checkbox"><span class="txt">Bring neutral (N) to every H1 back box. All H1s here are the with-neutral version.<span class="zh">每个 H1 switch box 都要有 neutral N（这批 H1 全部是 with neutral 版本）。</span></span></label></li>
+      <li><label><input type="checkbox"><span class="txt">Put each supply where it can be reached later: an access panel for the Gaming ceiling one, and the mirror supply and driver beside the mirror (its metal backing blocks the signal).<span class="zh">火牛装在以后修得到的位置：游戏房 ceiling 要留 access panel；化妆镜的火牛和 driver 装在镜子旁边（镜子背面的金属会挡 signal）。</span></span></label></li>
+      <li><label><input type="checkbox"><span class="txt">One power point per strip: one supply and one driver each. The mirror strip is an open 6.3 m run, longer than one feed should carry: run a second 24 V wire pair from the same driver to its far end (no second supply). If that can't be done, check the far end reads 23.3 V or more with the strip on full white.<span class="zh">每条 LED strip 只有一个 power point：一个火牛、一个 driver。化妆镜灯条是 6.3 m 开口的一条，单边供电太长：从同一个 driver 多拉一对 24V 线到灯条尾端（不用多一个火牛）。如果拉不到，灯条开全白时尾端电压要有 23.3 V 或以上。</span></span></label></li>
+      <li><label><input type="checkbox"><span class="txt">Water heaters for Bath 1, Bath 2 and the Master bath: ordinary switches, not H1 and not smart. Each gets a 20A double-pole switch with a neon indicator outside the bathroom beside the door, on its own circuit with earth-leakage protection. The positions aren't on the drawings: agree them with the owner on site.<span class="zh">Bath 1、Bath 2 和主人房 bathroom 的 water heater：用普通 switch，不是 H1，不用 smart。每个都用 20A double-pole switch（有 neon 灯），装在 bathroom 门外旁边，各自独立线路，要有 earth leakage 保护（RCCB/ELCB）。图纸没有画位置，现场跟屋主再定。</span></span></label></li>
+      <li><label><input type="checkbox"><span class="txt">Test: with the rocker off, the driver input still reads 24 V. Then tell the owner, who sets these rockers to wireless mode in the app.<span class="zh">测试：按键 off 的时候，driver 输入端还是有 24 V。做好后通知屋主，屋主会在 App 里把这些按键设成 wireless mode。</span></span></label></li>
+    </ol>
+  </section>
+
+  <footer class="why">
+    <p>Circuit numbers (L08, L19, L24, L30, L34) are from the reflected-ceiling plan, sheet 3 of the drawings. Supply loads are from the LED strip power sheet.
+      <span class="zh">线路编号来自天花图（RCP，第 3 张）。火牛 load 来自 LED strip 功率表。</span></p>
+  </footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,4 @@
+# Same line endings on macOS, Linux and Windows
+* text=auto eol=lf
+*.pdf binary
+*.png binary

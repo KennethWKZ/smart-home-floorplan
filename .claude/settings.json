@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "env": {
+    "PYTHONUTF8": "1"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(uv run tools/*)",
+      "Bash(uv sync *)",
+      "Bash(uv --version)",
+      "Bash(uv run playwright install chromium)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
+    ],
+    "deny": [
+      "Read(.publish.json)",
+      "Read(.share/**)"
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  // Keep the file list simple: hide tool clutter and the private publish records.
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/.DS_Store": true,
+    "**/.impeccable": true,
+    "**/.publish.json": true,
+    "**/.share": true,
+    ".venv": true
+  }
+}

@@ -1,0 +1,13 @@
+[project]
+name = "smart-home-floorplan"
+version = "1.0.0"
+description = "Interactive smart-home network plans traced from a home's PDF drawings"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = [
+    "pymupdf>=1.24",
+    "playwright>=1.48",
+]
+
+[tool.uv]
+package = false

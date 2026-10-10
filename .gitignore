@@ -1,0 +1,26 @@
+# Python / uv
+.venv/
+__pycache__/
+*.pyc
+
+# OS and editor clutter
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+# shared VS Code setup is committed; anything personal VS Code adds stays out
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Live page credentials (update keys and viewer passwords): never commit
+.publish.json
+.share/
+
+# Review screenshots and scratch
+.impeccable/
+.lavish/
+
+# Personal Claude Code overrides
+.claude/settings.local.json
+CLAUDE.local.md

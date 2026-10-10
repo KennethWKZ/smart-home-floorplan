@@ -1,0 +1,324 @@
+<title>EXAMPLE LED Strip Power</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: one centred working sheet on the grey drawing-table ground, same palette as the network plan */
+
+:root {
+  --table: #d3d9e0;
+  --sheet: #ffffff;
+  --sheet-edge: #b9c1ca;
+  --ink: #14181d;
+  --ink-2: #3c434c;
+  --ink-3: #5d6670;
+  --rule: #d6dbe1;
+  --wall: #2a2f36;
+  --outline: #59616b;
+  --furn: #b8bfc7;
+  --dim: #7b848e;
+  --room-label: #6a737d;
+  --tile: #ffffff;
+  --hover: #eef2f6;
+  --zb: #1769e0;      --zb-ink: #1259c2;
+  --th: #8a3ffc;      --th-ink: #7a2fe8;
+  --wf: #0e9f6e;      --wf-ink: #0a7752;
+  --ir: #e8492f;      --ir-ink: #c2361f;
+  --warn: #b88200;    --warn-ink: #855e00;
+  --led: #d6338a;     --led-ink: #b0216f;
+  --shadow: 0 1px 1px rgb(20 24 29 / .07);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --table: #0c0f12; --sheet: #161a1f; --sheet-edge: #2a3038;
+    --ink: #e8ecf0; --ink-2: #c3cad2; --ink-3: #8f99a4; --rule: #262c33;
+    --wall: #c9d0d8; --outline: #8a939d; --furn: #39414a; --dim: #7f8994; --room-label: #8c96a1;
+    --tile: #1d2228; --hover: #1f252c;
+    --zb: #5aa2ff; --zb-ink: #7cb5ff; --th: #b48cff; --th-ink: #c6a6ff;
+    --wf: #3fd49a; --wf-ink: #5fe0ad; --ir: #ff6b4f; --ir-ink: #ff8a72;
+    --warn: #e3b341; --warn-ink: #edc565;
+    --led: #ff6eb4; --led-ink: #ff8cc4;
+    --shadow: 0 1px 1px rgb(0 0 0 / .45);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --table: #0c0f12; --sheet: #161a1f; --sheet-edge: #2a3038;
+  --ink: #e8ecf0; --ink-2: #c3cad2; --ink-3: #8f99a4; --rule: #262c33;
+  --wall: #c9d0d8; --outline: #8a939d; --furn: #39414a; --dim: #7f8994; --room-label: #8c96a1;
+  --tile: #1d2228; --hover: #1f252c;
+  --zb: #5aa2ff; --zb-ink: #7cb5ff; --th: #b48cff; --th-ink: #c6a6ff;
+  --wf: #3fd49a; --wf-ink: #5fe0ad; --ir: #ff6b4f; --ir-ink: #ff8a72;
+  --warn: #e3b341; --warn-ink: #edc565;
+  --led: #ff6eb4; --led-ink: #ff8cc4;
+  --shadow: 0 1px 1px rgb(0 0 0 / .45);
+  color-scheme: dark;
+}
+
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--table); color: var(--ink); font: 400 15px/1.55 Jost, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; font-variant-numeric: tabular-nums; }
+::selection { background: color-mix(in srgb, var(--zb) 28%, transparent); color: var(--ink); }
+.sheet-page { max-width: 1120px; margin: 0 auto; padding-inline: 24px; padding-block: 28px 48px; display: grid; gap: 14px; }
+.sheet-ref { margin: 0; font-size: .86rem; color: var(--ink-3); }
+.sheet-ref b { color: var(--ink-2); font-weight: 500; }
+@media (max-width: 760px) { .sheet-page { padding-inline: 16px; padding-block: 20px 36px; } }
+</style>
+<main class="sheet-page">
+<p class="sheet-ref"><b>Example apartment</b> · lighting supply check for the contractor</p>
+<style>
+/* LED strip power: one self-contained block, used on the plan page and on the contractor sheet */
+#led { display: grid; gap: 18px; }
+#led [hidden] { display: none !important; }
+#led .led-summary .pill { white-space: normal; align-items: baseline; }
+#led .led-summary .pill::before { transform: translateY(-1px); }
+#led .led-title { font-size: clamp(1.35rem, 1.1rem + .9vw, 1.8rem); line-height: 1.15; margin: 0 0 6px; font-weight: 600; letter-spacing: -0.015em; text-wrap: balance; color: var(--ink); }
+#led .led-lede { color: var(--ink-2); margin: 0; max-width: 72ch; }
+#led .led-sheet { background: var(--sheet); border: 1px solid var(--sheet-edge); border-radius: 14px; box-shadow: var(--shadow); padding: 20px 22px 22px; display: grid; gap: 18px; min-width: 0; }
+#led .led-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; font-size: .95rem; color: var(--ink); }
+#led .led-summary b { font-weight: 600; }
+#led .led-settings { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; padding-bottom: 16px; border-bottom: 1px solid var(--rule); }
+#led .led-field { display: grid; gap: 4px; font-size: .82rem; color: var(--ink-3); }
+#led .led-field .led-fixed { font-size: .95rem; color: var(--ink); padding: 6px 0; }
+#led .led-inwrap { display: inline-flex; align-items: center; gap: 6px; color: var(--ink-3); font-size: .85rem; }
+#led input, #led select { font: inherit; font-size: .95rem; color: var(--ink); background: var(--sheet); border: 1px solid var(--sheet-edge); border-radius: 7px; padding: 5px 8px; font-variant-numeric: tabular-nums; }
+#led input { width: 4.6em; }
+#led select { padding-right: 4px; }
+#led input:focus-visible, #led select:focus-visible, #led button:focus-visible { outline: 2px solid var(--zb); outline-offset: 1px; }
+#led input[aria-invalid="true"] { border-color: var(--ir); }
+#led .led-table-wrap { overflow-x: auto; min-width: 0; }
+#led table { width: 100%; border-collapse: collapse; font-size: .92rem; font-variant-numeric: tabular-nums; }
+#led th { text-align: left; font-weight: 500; color: var(--ink-3); font-size: .78rem; letter-spacing: .02em; padding: 0 10px 8px; border-bottom: 1px solid var(--rule); white-space: nowrap; vertical-align: bottom; }
+#led td { padding: 12px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; color: var(--ink); }
+#led tr:last-child td { border-bottom: 0; }
+#led td .sub { display: block; color: var(--ink-3); font-size: .8rem; margin-top: 3px; line-height: 1.35; }
+#led td .name { font-weight: 600; }
+#led .pill { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; white-space: nowrap; }
+#led .pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: none; }
+#led .ok { color: var(--wf-ink); } #led .tight { color: var(--warn-ink); } #led .over { color: var(--ir-ink); }
+#led .assumed { display: inline-block; font-size: .72rem; font-weight: 500; color: var(--warn-ink); border: 1px solid color-mix(in srgb, var(--warn) 55%, transparent); border-radius: 5px; padding: 0 5px; margin-top: 4px; white-space: nowrap; }
+#led .known { display: block; font-size: .74rem; color: var(--ink-3); margin-top: 4px; }
+#led .led-notes { display: grid; gap: 8px; }
+#led .led-notes h3 { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--ink); }
+#led .led-notes ol { margin: 0; padding-left: 1.25em; color: var(--ink-2); display: grid; gap: 6px; max-width: 80ch; }
+#led .led-notes li::marker { color: var(--ink-3); }
+#led .led-notes b { color: var(--ink); font-weight: 600; }
+#led .led-actions { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; }
+#led .led-btn { display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 13px; border: 1px solid var(--sheet-edge); background: var(--sheet); color: var(--ink-2); border-radius: 8px; cursor: pointer; font: inherit; font-size: .9rem; font-weight: 500; transition: background-color .15s ease, border-color .15s ease, transform .12s cubic-bezier(0.23, 1, 0.32, 1); }
+#led .led-btn:active { transform: scale(.97); }
+@media (hover: hover) and (pointer: fine) { #led .led-btn:hover { background: var(--hover); border-color: var(--outline); } }
+#led .led-btn svg { width: 16px; height: 16px; flex: none; }
+#led .led-status { font-size: .86rem; color: var(--ink-3); }
+#led .led-fallback { width: 100%; min-height: 9em; font: inherit; font-size: .85rem; color: var(--ink); background: var(--sheet); border: 1px solid var(--sheet-edge); border-radius: 8px; padding: 10px; }
+#led .led-foot { font-size: .82rem; color: var(--ink-3); margin: 0; max-width: 80ch; }
+@media (max-width: 760px) {
+  #led .led-sheet { padding: 16px 14px 18px; }
+  #led thead { display: none; }
+  #led table, #led tbody, #led tr, #led td { display: block; }
+  #led tr { padding: 12px 0; border-bottom: 1px solid var(--rule); }
+  #led tr:last-child { border-bottom: 0; }
+  #led td { display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: 10px; padding: 5px 0; border: 0; }
+  #led td::before { content: attr(data-label); color: var(--ink-3); font-size: .8rem; padding-top: 2px; }
+  #led td.cell-strip { grid-template-columns: minmax(0, 1fr); padding-bottom: 8px; }
+  #led td.cell-strip::before { content: none; }
+}
+@media (max-width: 760px) {
+  #led .led-btn { width: 40px; height: 40px; padding: 0; justify-content: center; }
+  #led .led-btn .lbl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  #led .led-btn svg { width: 18px; height: 18px; }
+  #led .led-status { flex: 1 1 100%; }
+}
+@media (prefers-reduced-motion: reduce) { #led .led-btn { transition: none; } }
+</style>
+<section id="led" aria-labelledby="ledTitle">
+  <header>
+    <h1 class="led-title" id="ledTitle">LED strip power</h1>
+    <p class="led-lede">Four strips, each on its own 24 V supply (200 W planned) and Aqara Smart Light Strip Driver. Enter the watts per metre printed on each reel and the cable you plan to run; the loads, supply margins and feed advice update as you type.</p>
+  </header>
+  <div class="led-sheet">
+    <div class="led-summary" id="led-summary" aria-live="polite"></div>
+    <div class="led-settings">
+      <div class="led-field"><span>Strip voltage</span><span class="led-fixed">24 V DC</span></div>
+      <label class="led-field" for="led-psu"><span>Supply rating</span><span class="led-inwrap"><input id="led-psu" type="number" inputmode="decimal" min="1" step="10"> W</span></label>
+      <label class="led-field" for="led-derate"><span>Keep supply load under</span><span class="led-inwrap"><input id="led-derate" type="number" inputmode="decimal" min="10" max="100" step="5"> %</span></label>
+      <label class="led-field" for="led-maxrun"><span>Longest run per feed (strip datasheet)</span><span class="led-inwrap"><input id="led-maxrun" type="number" inputmode="decimal" min=".5" step=".5"> m</span></label>
+    </div>
+    <div class="led-table-wrap">
+      <table>
+        <thead><tr>
+          <th scope="col">Strip</th><th scope="col">Rating</th><th scope="col">Load</th><th scope="col">Supply</th><th scope="col">Feed points</th><th scope="col">Feeder cable</th><th scope="col">Voltage drop</th>
+        </tr></thead>
+        <tbody id="led-rows"></tbody>
+      </table>
+    </div>
+    <div class="led-notes">
+      <h3>For the installer</h3>
+      <ol>
+        <li><b>One supply per strip.</b> Keep each supply under the load limit above for continuous use. When a strip goes over, the Supply column names the size to fit instead; past 600 W, split it across two supplies and drivers.</li>
+        <li><b>Long runs get fed at both ends.</b> Run every wire from the driver's output (V+ and each colour channel) to each feed point. A power-only loop from the supply leaves the far end without colour control.</li>
+        <li><b>One power point per strip.</b> Each strip has one 24 V supply and one driver. The Gaming ceiling, Living TV and headboard strips are closed rectangles: their ends meet at one corner, so feeding both ends is a short jumper there. The mirror strip is open and 6.3 m long, over the 5 m a single feed should carry, so its far end gets a second wire pair from the same driver, not a second supply. If only one end is wired, measure the far end with the strip on full white: 23.3 V or more is fine.</li>
+        <li><b>Wires on site (checked by you).</b> The three 3-tone COB strips have 3-wire cables (24 V common, warm, cool): tunable white, so set each driver to dual colour-temperature mode. The Gaming strip has 5 wires (24 V common, red, green, blue, white): set its driver to RGBW mode. Wire every strip straight to the Aqara driver, not to a remote-control box sold with it.</li>
+        <li><b>Ask for the feeder wire size.</b> The 24 V common wire carries the whole strip's current: up to about 7 A on the Gaming strip at full white, about 5 A on the Living TV strip. At 1 mm² or thicker, a 3 m feeder loses about 2% or less; at 0.5 mm² it's about double. The far-end voltage check below settles it either way.</li>
+        <li><b>Driver limit:</b> the Aqara Smart Light Strip Driver handles up to 288 W at 24 V, per the Malaysian reseller's listing (not confirmed on Aqara's own spec page). Every strip here is well under that.</li>
+        <li><b>Feeders already installed?</b> Then skip the cable inputs and measure instead: with the strip on full white, read the voltage at its far end. 23.3 V or more means the drop is under 3%.</li>
+        <li><b>Supplies:</b> 24 V output to match the strips, mounted where they can breathe and be reached for service, not sealed behind plaster. Mains wiring by a registered electrician.</li>
+      </ol>
+    </div>
+    <div class="led-actions">
+      <button class="led-btn" id="led-copy" type="button" aria-label="Copy as text" title="Copy as text"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="5" width="8.5" height="8.5" rx="1.5"/><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5"/></svg><span class="lbl">Copy as text</span></button>
+      <button class="led-btn" id="led-reset" type="button" aria-label="Reset to defaults" title="Reset to defaults"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.6 8a5.4 5.4 0 1 0 1.6-3.8"/><path d="M2.5 2.5v3h3"/></svg><span class="lbl">Reset to defaults</span></button>
+      <span class="led-status" id="led-status" role="status"></span>
+    </div>
+    <textarea class="led-fallback" id="led-fallback" readonly hidden aria-label="Summary text to copy"></textarea>
+    <p class="led-foot">Voltage drop uses copper at 0.0175 Ω·mm²/m over the two-wire feeder, with each feed point carrying an equal share of the current, and treats 3% at the strip as the limit. Drop along the strip itself is covered by the run-per-feed figure from the strip's datasheet. Your entries stay in this browser.</p>
+  </div>
+</section>
+<script>
+(function () {
+  "use strict";
+  const root = document.getElementById("led");
+  if (!root) return;
+  const STRIPS = [
+    { k: "tv", name: "Living TV", type: "3-tone COB · 3-wire tunable white", len: 8.7, wpm: 14, loop: true },
+    { k: "mirror", name: "Master mirror", type: "3-tone COB · 3-wire tunable white", len: 6.3, wpm: 14 },
+    { k: "head", name: "Master headboard", type: "3-tone COB · 3-wire tunable white", len: 4.3, wpm: 14, loop: true },
+    { k: "gaming", name: "Gaming ceiling rectangle", type: "16-tone · 5-wire RGBW", len: 9.0, wpm: 19.2, loop: true }
+  ];
+  const DEF = { psu: 200, derate: 80, maxrun: 5, wpm: 14.4, fl: 3, cs: 1 };
+  const V = 24, RHO = 0.0175, DRIVER_W = 288, DROP_OK = 3, DROP_MAX = 5;
+  const SIZES = [0.5, 0.75, 1, 1.5, 2.5, 4];
+  const PSU_SIZES = [100, 150, 200, 250, 300, 350, 400, 500, 600];
+  const KEY = "example:led";
+  const $ = id => document.getElementById(id);
+  let st = {};
+  try { const v = JSON.parse(localStorage.getItem(KEY)); if (v && typeof v === "object") st = v; } catch (e) { st = {}; }
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) { /* storage unavailable */ } };
+  const fmt = (n, d = 0) => n.toLocaleString("en-MY", { minimumFractionDigits: d, maximumFractionDigits: d });
+  const mm2 = a => (a < 1 ? String(a).replace(/^0/, "0") : String(a)) + " mm²";
+
+  // rows: inputs are built once; outputs are rewritten on every change
+  const tbody = $("led-rows");
+  tbody.innerHTML = STRIPS.map(s => `
+    <tr data-k="${s.k}">
+      <td class="cell-strip" data-label="Strip"><span class="name">${s.name}</span><span class="sub">${s.type} · ${fmt(s.len, 1)} m${s.loop ? " · closed loop" : ""}</span></td>
+      <td data-label="Rating"><div><span class="led-inwrap"><input id="led-wpm-${s.k}" type="number" inputmode="decimal" min="0.1" step="0.1" aria-label="${s.name} watts per metre"> W/m</span><span class="assumed" data-assumed="wpm">assumed, check reel</span><span class="known" data-known="wpm">from the reel</span></div></td>
+      <td data-label="Load"><div><span data-out="load"></span><span class="sub" data-out="amps"></span></div></td>
+      <td data-label="Supply"><div><span data-out="supply"></span><span class="sub" data-out="fit"></span></div></td>
+      <td data-label="Feed points"><div><span data-out="feed"></span><span class="sub" data-out="feedsub"></span></div></td>
+      <td data-label="Feeder cable"><div><span class="led-inwrap"><input id="led-fl-${s.k}" type="number" inputmode="decimal" min="0.1" step="0.5" aria-label="${s.name} feeder length in metres"> m of
+        <select id="led-cs-${s.k}" aria-label="${s.name} feeder cable size">${SIZES.map(a => `<option value="${a}">${mm2(a)}</option>`).join("")}</select></span><span class="assumed" data-assumed="fl">optional: for the drop estimate</span></div></td>
+      <td data-label="Voltage drop"><div><span data-out="drop"></span><span class="sub" data-out="dropsub"></span></div></td>
+    </tr>`).join("");
+
+  const val = (id, def) => { const raw = st[id]; return raw === undefined || raw === "" ? def : Number(raw); };
+  function fill() {
+    $("led-psu").value = val("psu", DEF.psu); $("led-derate").value = val("derate", DEF.derate); $("led-maxrun").value = val("maxrun", DEF.maxrun);
+    for (const s of STRIPS) {
+      $("led-wpm-" + s.k).value = val("wpm-" + s.k, s.wpm || DEF.wpm);
+      $("led-fl-" + s.k).value = val("fl-" + s.k, DEF.fl);
+      $("led-cs-" + s.k).value = String(val("cs-" + s.k, DEF.cs));
+    }
+  }
+  const num = el => { const n = parseFloat(el.value); const ok = isFinite(n) && n > 0; el.setAttribute("aria-invalid", ok ? "false" : "true"); return ok ? n : null; };
+
+  function calc(s, g) {
+    const wpm = num($("led-wpm-" + s.k)), fl = num($("led-fl-" + s.k)), cs = parseFloat($("led-cs-" + s.k).value);
+    const r = { s, wpm, fl, cs, assumedW: st["wpm-" + s.k] === undefined && !s.wpm, fromReel: st["wpm-" + s.k] === undefined && !!s.wpm, assumedL: st["fl-" + s.k] === undefined };
+    r.n = s.len <= g.maxrun ? 1 : s.len <= 2 * g.maxrun ? 2 : 3;
+    r.fitW = g.psu * g.derate / 100 / s.len;
+    if (wpm === null) return r;
+    r.load = s.len * wpm; r.amps = r.load / V; r.pct = r.load / g.psu * 100;
+    r.supply = r.pct <= g.derate ? "ok" : r.pct <= 100 ? "tight" : "over";
+    r.psuFit = PSU_SIZES.find(w => r.load <= w * g.derate / 100) || null;
+    if (fl === null) return r;
+    // feeder lengths per feed point: near end, middle, far end (a closed loop's far end is back at the start corner)
+    const runs = r.n === 1 ? [fl] : r.n === 2 ? [fl, s.loop ? fl : fl + s.len] : [fl, fl + s.len / 2, s.loop ? fl : fl + s.len];
+    const iFeed = r.amps / r.n, worst = Math.max(...runs);
+    r.drop = 2 * worst * iFeed * RHO / cs / V * 100;
+    r.dropState = r.drop <= DROP_OK ? "ok" : r.drop <= DROP_MAX ? "tight" : "over";
+    const aMin = 2 * worst * iFeed * RHO / (DROP_OK / 100 * V);
+    r.minSize = SIZES.find(a => a >= aMin) || null;
+    r.worstRun = worst;
+    return r;
+  }
+  const FEED = (n, loop) => n === 1 ? "One end" : n === 2 ? (loop ? "Both ends, same corner" : "Both ends") : "Both ends and the middle";
+  const SUPPLY = { ok: "OK", tight: "Tight", over: "Over" };
+
+  let last = [], lastG = DEF;
+  const subs = [];
+  function update() {
+    const g = { psu: num($("led-psu")) || DEF.psu, derate: num($("led-derate")) || DEF.derate, maxrun: num($("led-maxrun")) || DEF.maxrun };
+    last = STRIPS.map(s => calc(s, g)); lastG = g;
+    for (const r of last) {
+      const tr = tbody.querySelector(`tr[data-k="${r.s.k}"]`), out = k => tr.querySelector(`[data-out="${k}"]`);
+      tr.querySelector('[data-assumed="wpm"]').hidden = !r.assumedW;
+      tr.querySelector('[data-known="wpm"]').hidden = !r.fromReel;
+      tr.querySelector('[data-assumed="fl"]').hidden = !r.assumedL;
+      if (r.load === undefined) {
+        out("load").textContent = "Enter W/m"; out("amps").textContent = ""; out("supply").textContent = "—";
+        out("fit").textContent = `Fits up to ${fmt(r.fitW, 1)} W/m`; out("drop").textContent = "—"; out("dropsub").textContent = "";
+      } else {
+        out("load").textContent = `${fmt(r.load)} W`;
+        out("amps").textContent = `${fmt(r.amps, 1)} A at 24 V${r.load > DRIVER_W ? " · over the driver's 288 W" : ""}`;
+        out("supply").innerHTML = `<span class="pill ${r.supply}">${SUPPLY[r.supply]} · ${fmt(r.pct)}%</span>`;
+        out("fit").textContent = r.supply === "ok" ? `Fits up to ${fmt(r.fitW, 1)} W/m` : r.psuFit ? `Fit a ${r.psuFit} W supply to stay under ${fmt(g.derate)}%` : "Split across two supplies";
+        if (r.drop === undefined) { out("drop").textContent = "Enter length"; out("dropsub").textContent = ""; }
+        else {
+          out("drop").innerHTML = `<span class="pill ${r.dropState}">${fmt(r.drop, 1)}%</span>`;
+          out("dropsub").textContent = r.dropState === "ok" ? `${fmt(V * (1 - r.drop / 100), 1)} V at the worst feed point`
+            : r.minSize ? `Use ${mm2(r.minSize)} or more to stay under ${DROP_OK}%` : `Shorten the ${fmt(r.worstRun, 1)} m feeder or add a feed point`;
+        }
+      }
+      out("feed").textContent = FEED(r.n, r.s.loop);
+      out("feedsub").textContent = r.n === 1 ? `${fmt(r.s.len, 1)} m is within one feed` : r.s.loop && r.n === 2 ? "Jumper from the start corner to the end" : "Every channel wire to each feed point";
+    }
+    const known = last.filter(r => r.load !== undefined), bad = known.filter(r => r.supply !== "ok"), dropBad = last.filter(r => r.dropState && r.dropState !== "ok");
+    const assumed = last.some(r => r.assumedW);
+    const parts = [];
+    parts.push(bad.length ? `<span class="pill ${bad.some(r => r.supply === "over") ? "over" : "tight"}"><span><b>${bad.map(r => r.s.name).join(" and ")}</b> ${bad.length === 1 ? "needs" : "need"} a bigger supply${bad.length === 1 && bad[0].psuFit ? ` (${bad[0].psuFit} W)` : ""}</span></span>`
+      : `<span class="pill ok"><span><b>All ${known.length} strips fit their ${fmt(g.psu)} W supply</b></span></span>`);
+    parts.push(`<span>${last.filter(r => r.n > 1).length} of ${last.length} need feeding at both ends</span>`);
+    if (dropBad.length) parts.push(`<span class="pill tight">Thicker feeder for ${dropBad.map(r => r.s.name).join(", ")}</span>`);
+    if (assumed) parts.push(`<span class="assumed">W/m values are assumed until you enter the reel ratings</span>`);
+    $("led-summary").innerHTML = parts.join("");
+    subs.forEach(fn => { try { fn(); } catch (e) { /* a listener failing must not break the table */ } });
+  }
+  window.planLed = {
+    results: () => last.map(r => ({ k: r.s.k, name: r.s.name, type: r.s.type, len: r.s.len, wpm: r.wpm, load: r.load, pct: r.pct, supply: r.supply, psuFit: r.psuFit, n: r.n, loop: !!r.s.loop, psu: lastG.psu, derate: lastG.derate })),
+    subscribe: fn => subs.push(fn)
+  };
+
+  function asText() {
+    const g = { psu: num($("led-psu")) || DEF.psu, derate: num($("led-derate")) || DEF.derate, maxrun: num($("led-maxrun")) || DEF.maxrun };
+    const lines = [`Example apartment LED strip power: 24 V, one ${fmt(g.psu)} W supply and Aqara strip driver per strip, keep supplies under ${fmt(g.derate)}%, longest run per feed ${fmt(g.maxrun, 1)} m.`, ""];
+    for (const r of last) {
+      const w = r.wpm === null ? "W/m not entered" : `${fmt(r.wpm, 1)} W/m${r.assumedW ? " (assumed)" : ""}`;
+      lines.push(`${r.s.name} (${r.s.type}, ${fmt(r.s.len, 1)} m): ${w}` + (r.load !== undefined ? `, ${fmt(r.load)} W, ${fmt(r.pct)}% of supply, ${SUPPLY[r.supply]}${r.supply !== "ok" && r.psuFit ? `: fit a ${r.psuFit} W supply` : ""}.` : "."));
+      lines.push(`  Feed: ${FEED(r.n, r.s.loop)}.` + (r.drop !== undefined ? ` Feeder ${fmt(r.fl, 1)} m of ${mm2(r.cs)}: ${fmt(r.drop, 1)}% drop${r.dropState === "ok" ? "" : r.minSize ? `, use ${mm2(r.minSize)} or more` : ""}.` : ""));
+    }
+    lines.push("", "Notes:");
+    root.querySelectorAll(".led-notes li").forEach((li, i) => lines.push(`${i + 1}. ${li.textContent.trim()}`));
+    return lines.join("\n");
+  }
+
+  root.addEventListener("input", e => {
+    const id = e.target.id; if (!id || !id.startsWith("led-") || id === "led-fallback") return;
+    st[id.slice(4)] = e.target.value; save(); update();
+  });
+  root.addEventListener("change", e => { if (e.target.tagName === "SELECT") { st[e.target.id.slice(4)] = e.target.value; save(); update(); } });
+  $("led-reset").addEventListener("click", () => { st = {}; save(); fill(); update(); $("led-status").textContent = "Defaults restored"; $("led-fallback").hidden = true; });
+  $("led-copy").addEventListener("click", () => {
+    const text = asText(), status = $("led-status"), fb = $("led-fallback");
+    const fallback = () => { fb.value = text; fb.hidden = false; fb.focus(); fb.select(); status.textContent = "Copy didn't work here: the text is selected below, copy it from there"; };
+    try {
+      navigator.clipboard.writeText(text).then(() => { status.textContent = "Copied. Paste it into a message to your contractor."; fb.hidden = true; }, fallback);
+    } catch (e) { fallback(); }
+  });
+  fill(); update();
+})();
+</script>
+
+</main>
